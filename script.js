@@ -1,7 +1,7 @@
 /**
  * ============================================
  * СВАДЕБНОЕ ПРИГЛАШЕНИЕ — JAVASCRIPT
- * Хакматулло и Нозияхон • 25 июля
+ * Хакматулло и Нозияхон • 25 июля 2026
  * ============================================
  */
 
@@ -18,6 +18,12 @@
   const musicToggle = document.getElementById('musicToggle');
   const musicSuggestion = document.getElementById('musicSuggestion');
   const weddingAudio = document.getElementById('weddingAudio');
+
+  // Элементы таймера
+  const countdownDays = document.getElementById('countdown-days');
+  const countdownHours = document.getElementById('countdown-hours');
+  const countdownMinutes = document.getElementById('countdown-minutes');
+  const countdownSeconds = document.getElementById('countdown-seconds');
 
   let isEnvelopeOpen = false;
   let isMusicPlaying = false;
@@ -71,17 +77,8 @@
     envelopeContainer.classList.add('opened');
     hintText.style.opacity = '0';
 
-    // Шаг 1: клапан открывается
-    setTimeout(() => {
-      envelopeFlap.classList.add('open');
-    }, 200);
-
-    // Шаг 2: обложка исчезает
-    setTimeout(() => {
-      envelopeCover.classList.add('hidden');
-    }, 700);
-
-    // Шаг 3: текст появляется
+    setTimeout(() => { envelopeFlap.classList.add('open'); }, 200);
+    setTimeout(() => { envelopeCover.classList.add('hidden'); }, 700);
     setTimeout(() => {
       invitationText.classList.add('visible');
       scrollDownBtn.classList.add('visible');
@@ -93,13 +90,46 @@
   // ===== 3. КНОПКА "ЛИСТАТЬ ДАЛЬШЕ" =====
   scrollDownBtn.addEventListener('click', function (event) {
     event.stopPropagation();
-    const programSection = document.getElementById('program');
-    if (programSection) {
-      programSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const calendarSection = document.getElementById('calendar');
+    if (calendarSection) {
+      calendarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
 
-  // ===== 4. АНИМАЦИЯ КАРТОЧЕК =====
+  // ===== 4. ТАЙМЕР ОБРАТНОГО ОТСЧЁТА =====
+  // Установите дату свадьбы: 25 июля 2026 года
+  const weddingDate = new Date('2026-07-25T00:00:00');
+
+  function updateCountdown() {
+    const now = new Date();
+    const difference = weddingDate - now;
+
+    // Если свадьба уже прошла
+    if (difference <= 0) {
+      countdownDays.textContent = '00';
+      countdownHours.textContent = '00';
+      countdownMinutes.textContent = '00';
+      countdownSeconds.textContent = '00';
+      return;
+    }
+
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    // Добавляем ведущий ноль
+    countdownDays.textContent = String(days).padStart(2, '0');
+    countdownHours.textContent = String(hours).padStart(2, '0');
+    countdownMinutes.textContent = String(minutes).padStart(2, '0');
+    countdownSeconds.textContent = String(seconds).padStart(2, '0');
+  }
+
+  // Запускаем таймер сразу и обновляем каждую секунду
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ===== 5. АНИМАЦИЯ КАРТОЧЕК =====
   const timelineItems = document.querySelectorAll('.timeline-item[data-animate]');
   const observer = new IntersectionObserver(
     (entries) => {
@@ -114,11 +144,10 @@
   );
   timelineItems.forEach((item) => observer.observe(item));
 
-  // ===== 5. ПАРАЛЛАКС =====
+  // ===== 6. ПАРАЛЛАКС =====
   const floralElements = document.querySelectorAll('.floral-decoration');
   const petals = document.querySelectorAll('.petal');
   const rings = document.querySelectorAll('.decorative-ring');
-
   const allParallax = [...floralElements, ...petals, ...rings];
 
   window.addEventListener('mousemove', function (event) {
