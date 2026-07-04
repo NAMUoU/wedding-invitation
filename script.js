@@ -1,171 +1,127 @@
 /**
- * ============================================
- * СВАДЕБНОЕ ПРИГЛАШЕНИЕ — JAVASCRIPT
+ * СВАДЕБНОЕ ПРИГЛАШЕНИЕ — JavaScript
  * Хакматулло и Нозияхон • 25 июля 2026
- * ============================================
  */
 
 (function () {
   'use strict';
 
-  // ===== ЭЛЕМЕНТЫ DOM =====
-  const envelopeContainer = document.getElementById('envelopeContainer');
-  const envelopeCover = document.getElementById('envelopeCover');
-  const envelopeFlap = document.getElementById('envelopeFlap');
-  const invitationText = document.getElementById('invitationText');
+  // Элементы
+  const heroNames = document.getElementById('heroNames');
+  const heroSealWrapper = document.getElementById('heroSealWrapper');
+  const heroSubtitle = document.getElementById('heroSubtitle');
+  const heroSection = document.getElementById('hero');
+  const invitationPaper = document.getElementById('invitationPaper');
+  const paperContent = document.getElementById('paperContent');
   const scrollDownBtn = document.getElementById('scrollDownBtn');
-  const hintText = document.getElementById('hintText');
   const musicToggle = document.getElementById('musicToggle');
   const musicSuggestion = document.getElementById('musicSuggestion');
   const weddingAudio = document.getElementById('weddingAudio');
-
-  // Элементы таймера
   const countdownDays = document.getElementById('countdown-days');
   const countdownHours = document.getElementById('countdown-hours');
   const countdownMinutes = document.getElementById('countdown-minutes');
   const countdownSeconds = document.getElementById('countdown-seconds');
 
-  let isEnvelopeOpen = false;
+  let isSealClicked = false;
   let isMusicPlaying = false;
 
   // ===== 1. МУЗЫКА =====
   function toggleMusic() {
     if (!isMusicPlaying) {
-      const playPromise = weddingAudio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            isMusicPlaying = true;
-            musicToggle.classList.add('playing');
-            musicSuggestion.classList.remove('visible');
-          })
-          .catch(() => {
-            console.warn('Музыка не запустилась. Проверьте файл: assets/music/wedding-music.mp3');
-            isMusicPlaying = true;
-            musicToggle.classList.add('playing');
-            musicSuggestion.classList.remove('visible');
-          });
-      }
+      weddingAudio.play().then(() => {
+        isMusicPlaying = true;
+        musicToggle.classList.add('playing');
+        musicSuggestion.classList.remove('visible');
+      }).catch(() => {
+        isMusicPlaying = true;
+        musicToggle.classList.add('playing');
+        musicSuggestion.classList.remove('visible');
+      });
     } else {
       weddingAudio.pause();
       isMusicPlaying = false;
       musicToggle.classList.remove('playing');
     }
   }
-
   musicToggle.addEventListener('click', toggleMusic);
-
-  setTimeout(() => {
-    if (!isMusicPlaying) musicSuggestion.classList.add('visible');
-  }, 2000);
-
-  document.addEventListener('click', function (event) {
-    if (
-      musicSuggestion.classList.contains('visible') &&
-      event.target !== musicToggle &&
-      !musicToggle.contains(event.target)
-    ) {
+  setTimeout(() => { if (!isMusicPlaying) musicSuggestion.classList.add('visible'); }, 2000);
+  document.addEventListener('click', (e) => {
+    if (musicSuggestion.classList.contains('visible') && e.target !== musicToggle && !musicToggle.contains(e.target))
       musicSuggestion.classList.remove('visible');
-    }
   });
 
-  // ===== 2. АНИМАЦИЯ КОНВЕРТА =====
-  function openEnvelope() {
-    if (isEnvelopeOpen) return;
-    isEnvelopeOpen = true;
+  // ===== 2. АНИМАЦИЯ ПОЯВЛЕНИЯ ЭЛЕМЕНТОВ НА ПЕРВОМ ЭКРАНЕ =====
+  setTimeout(() => heroNames.classList.add('visible'), 300);
+  setTimeout(() => heroSealWrapper.classList.add('visible'), 700);
+  setTimeout(() => heroSubtitle.classList.add('visible'), 1100);
 
-    envelopeContainer.classList.add('opened');
-    hintText.style.opacity = '0';
+  // ===== 3. КЛИК ПО ПЕЧАТИ — ПЕРЕХОД К ПРИГЛАШЕНИЮ =====
+  heroSealWrapper.addEventListener('click', () => {
+    if (isSealClicked) return;
+    isSealClicked = true;
 
-    setTimeout(() => { envelopeFlap.classList.add('open'); }, 200);
-    setTimeout(() => { envelopeCover.classList.add('hidden'); }, 700);
+    // Плавно скрываем первый экран
+    heroNames.style.opacity = '0';
+    heroSealWrapper.style.opacity = '0';
+    heroSubtitle.style.opacity = '0';
+    heroNames.style.transition = 'opacity 0.5s ease';
+    heroSealWrapper.style.transition = 'opacity 0.5s ease';
+    heroSubtitle.style.transition = 'opacity 0.5s ease';
+
+    // Скроллим к приглашению
     setTimeout(() => {
-      invitationText.classList.add('visible');
+      document.getElementById('invitation').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 400);
+
+    // Показываем бумагу
+    setTimeout(() => {
+      invitationPaper.classList.add('visible');
+    }, 1000);
+
+    // Показываем кнопку
+    setTimeout(() => {
       scrollDownBtn.classList.add('visible');
-    }, 1200);
-  }
-
-  envelopeContainer.addEventListener('click', openEnvelope);
-
-  // ===== 3. КНОПКА "ЛИСТАТЬ ДАЛЬШЕ" =====
-  scrollDownBtn.addEventListener('click', function (event) {
-    event.stopPropagation();
-    const calendarSection = document.getElementById('calendar');
-    if (calendarSection) {
-      calendarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    }, 1500);
   });
 
-  // ===== 4. ТАЙМЕР ОБРАТНОГО ОТСЧЁТА =====
-  // Установите дату свадьбы: 25 июля 2026 года
-  const weddingDate = new Date('2026-07-25T00:00:00');
+  // ===== 4. КНОПКА "СМОТРЕТЬ ПРОГРАММУ" =====
+  scrollDownBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('calendar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
+  // ===== 5. ТАЙМЕР =====
+  const weddingDate = new Date('2026-07-25T00:00:00');
   function updateCountdown() {
     const now = new Date();
-    const difference = weddingDate - now;
-
-    // Если свадьба уже прошла
-    if (difference <= 0) {
-      countdownDays.textContent = '00';
-      countdownHours.textContent = '00';
-      countdownMinutes.textContent = '00';
-      countdownSeconds.textContent = '00';
+    const diff = weddingDate - now;
+    if (diff <= 0) {
+      countdownDays.textContent = '00'; countdownHours.textContent = '00';
+      countdownMinutes.textContent = '00'; countdownSeconds.textContent = '00';
       return;
     }
-
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-    // Добавляем ведущий ноль
-    countdownDays.textContent = String(days).padStart(2, '0');
-    countdownHours.textContent = String(hours).padStart(2, '0');
-    countdownMinutes.textContent = String(minutes).padStart(2, '0');
-    countdownSeconds.textContent = String(seconds).padStart(2, '0');
+    countdownDays.textContent = String(Math.floor(diff / 86400000)).padStart(2, '0');
+    countdownHours.textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+    countdownMinutes.textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+    countdownSeconds.textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
   }
-
-  // Запускаем таймер сразу и обновляем каждую секунду
   updateCountdown();
   setInterval(updateCountdown, 1000);
 
-  // ===== 5. АНИМАЦИЯ КАРТОЧЕК =====
-  const timelineItems = document.querySelectorAll('.timeline-item[data-animate]');
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.2, rootMargin: '0px 0px -40px 0px' }
-  );
-  timelineItems.forEach((item) => observer.observe(item));
+  // ===== 6. АНИМАЦИЯ КАРТОЧЕК =====
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.timeline-item[data-animate]').forEach(item => observer.observe(item));
 
-  // ===== 6. ПАРАЛЛАКС =====
-  const floralElements = document.querySelectorAll('.floral-decoration');
-  const petals = document.querySelectorAll('.petal');
-  const rings = document.querySelectorAll('.decorative-ring');
-  const allParallax = [...floralElements, ...petals, ...rings];
-
-  window.addEventListener('mousemove', function (event) {
+  // ===== 7. ПАРАЛЛАКС =====
+  const parallaxEls = document.querySelectorAll('.floral-decoration, .petal, .decorative-ring');
+  window.addEventListener('mousemove', (e) => {
     if (window.innerWidth <= 480) return;
-    const mouseX = (event.clientX / window.innerWidth - 0.5) * 15;
-    const mouseY = (event.clientY / window.innerHeight - 0.5) * 15;
-    allParallax.forEach((element, index) => {
-      const speed = 0.3 + index * 0.15;
-      element.style.transform = `translate(${mouseX * speed}px, ${mouseY * speed}px)`;
-    });
-  });
-
-  window.addEventListener('scroll', function () {
-    if (window.innerWidth > 480) return;
-    const scrollY = window.pageYOffset;
-    allParallax.forEach((element, index) => {
-      const speed = 0.02 + index * 0.015;
-      element.style.transform = `translateY(${scrollY * speed}px)`;
+    const mx = (e.clientX / window.innerWidth - 0.5) * 12;
+    const my = (e.clientY / window.innerHeight - 0.5) * 12;
+    parallaxEls.forEach((el, i) => {
+      el.style.transform = `translate(${mx * (0.3 + i * 0.1)}px, ${my * (0.3 + i * 0.1)}px)`;
     });
   });
 
