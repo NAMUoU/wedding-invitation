@@ -1,18 +1,15 @@
 /**
  * СВАДЕБНОЕ ПРИГЛАШЕНИЕ — JavaScript
- * Хакматулло и Нозияхон • 25 июля 2026
+ * Ҳикматулло и Нозияхон • 25 июля 2026
  */
 
 (function () {
   'use strict';
 
-  // Элементы
   const heroNames = document.getElementById('heroNames');
   const heroSealWrapper = document.getElementById('heroSealWrapper');
   const heroSubtitle = document.getElementById('heroSubtitle');
-  const heroSection = document.getElementById('hero');
   const invitationPaper = document.getElementById('invitationPaper');
-  const paperContent = document.getElementById('paperContent');
   const scrollDownBtn = document.getElementById('scrollDownBtn');
   const musicToggle = document.getElementById('musicToggle');
   const musicSuggestion = document.getElementById('musicSuggestion');
@@ -25,7 +22,6 @@
   let isSealClicked = false;
   let isMusicPlaying = false;
 
-  // ===== 1. МУЗЫКА =====
   function toggleMusic() {
     if (!isMusicPlaying) {
       weddingAudio.play().then(() => {
@@ -50,47 +46,29 @@
       musicSuggestion.classList.remove('visible');
   });
 
-  // ===== 2. АНИМАЦИЯ ПОЯВЛЕНИЯ ЭЛЕМЕНТОВ НА ПЕРВОМ ЭКРАНЕ =====
   setTimeout(() => heroNames.classList.add('visible'), 300);
   setTimeout(() => heroSealWrapper.classList.add('visible'), 700);
   setTimeout(() => heroSubtitle.classList.add('visible'), 1100);
 
-  // ===== 3. КЛИК ПО ПЕЧАТИ — ПЕРЕХОД К ПРИГЛАШЕНИЮ =====
   heroSealWrapper.addEventListener('click', () => {
     if (isSealClicked) return;
     isSealClicked = true;
-
-    // Плавно скрываем первый экран
     heroNames.style.opacity = '0';
     heroSealWrapper.style.opacity = '0';
     heroSubtitle.style.opacity = '0';
     heroNames.style.transition = 'opacity 0.5s ease';
     heroSealWrapper.style.transition = 'opacity 0.5s ease';
     heroSubtitle.style.transition = 'opacity 0.5s ease';
-
-    // Скроллим к приглашению
-    setTimeout(() => {
-      document.getElementById('invitation').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 400);
-
-    // Показываем бумагу
-    setTimeout(() => {
-      invitationPaper.classList.add('visible');
-    }, 1000);
-
-    // Показываем кнопку
-    setTimeout(() => {
-      scrollDownBtn.classList.add('visible');
-    }, 1500);
+    setTimeout(() => document.getElementById('invitation').scrollIntoView({ behavior: 'smooth', block: 'start' }), 400);
+    setTimeout(() => invitationPaper.classList.add('visible'), 1000);
+    setTimeout(() => scrollDownBtn.classList.add('visible'), 1500);
   });
 
-  // ===== 4. КНОПКА "СМОТРЕТЬ ПРОГРАММУ" =====
   scrollDownBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    document.getElementById('calendar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('photo1').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  // ===== 5. ТАЙМЕР =====
   const weddingDate = new Date('2026-07-25T00:00:00');
   function updateCountdown() {
     const now = new Date();
@@ -108,21 +86,17 @@
   updateCountdown();
   setInterval(updateCountdown, 1000);
 
-  // ===== 6. АНИМАЦИЯ КАРТОЧЕК =====
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
   }, { threshold: 0.2 });
   document.querySelectorAll('.timeline-item[data-animate]').forEach(item => observer.observe(item));
 
-  // ===== 7. ПАРАЛЛАКС =====
-  const parallaxEls = document.querySelectorAll('.floral-decoration, .petal, .decorative-ring');
+  const parallaxEls = document.querySelectorAll('.floral-decoration, .petal');
   window.addEventListener('mousemove', (e) => {
     if (window.innerWidth <= 480) return;
-    const mx = (e.clientX / window.innerWidth - 0.5) * 12;
-    const my = (e.clientY / window.innerHeight - 0.5) * 12;
-    parallaxEls.forEach((el, i) => {
-      el.style.transform = `translate(${mx * (0.3 + i * 0.1)}px, ${my * (0.3 + i * 0.1)}px)`;
-    });
+    const mx = (e.clientX / window.innerWidth - 0.5) * 10;
+    const my = (e.clientY / window.innerHeight - 0.5) * 10;
+    parallaxEls.forEach((el, i) => el.style.transform = `translate(${mx * (0.3 + i * 0.1)}px, ${my * (0.3 + i * 0.1)}px)`);
   });
 
 })();
